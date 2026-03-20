@@ -17,6 +17,7 @@ export default function SearchInput({
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
+  const latestValueRef = useRef(value);
 
   const clearDebounce = useCallback(() => {
     if (debounceTimer.current !== null) {
@@ -25,10 +26,16 @@ export default function SearchInput({
     }
   }, []);
 
+  const flushDebounce = useCallback(() => {
+    clearDebounce();
+    onChangeRef.current(latestValueRef.current);
+  }, [clearDebounce]);
+
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const newValue = e.target.value;
       setValue(newValue);
+      latestValueRef.current = newValue;
 
       clearDebounce();
       debounceTimer.current = setTimeout(() => {
@@ -41,11 +48,10 @@ export default function SearchInput({
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === 'Enter') {
-        clearDebounce();
-        onChangeRef.current(value);
+        flushDebounce();
       }
     },
-    [clearDebounce, value],
+    [flushDebounce],
   );
 
   useEffect(() => {
