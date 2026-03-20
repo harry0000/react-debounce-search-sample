@@ -54,13 +54,7 @@ export default function SearchInput({
     [flushDebounce],
   );
 
-  useEffect(() => {
-    return () => {
-      if (debounceTimer.current !== null) {
-        clearTimeout(debounceTimer.current);
-      }
-    };
-  }, []);
+  useEffect(() => clearDebounce, [clearDebounce]);
 
   return (
     <TextField
